@@ -22,7 +22,7 @@ This is the website homepage, there is nothing really interesting except for a d
 
 ## Virtual host
 
-I added _doctors.htb_ into my **/etc/hosts** file and visited the URL again, now there's **actually** some interesting: a login page!
+I added _doctors.htb_ into my **/etc/hosts** file and visited the URL again, now there's **actually** something interesting: a login page!
 
 ![](/doctor/img/login.PNG)
 
