@@ -5,24 +5,24 @@
         <h1>User access</h1>
         <h2>Scan</h2>
             <p>As always I started by running nmap on the target IP in search of open ports</p>
-            <img src="./doctor/nmap.PNG"/>
+            <img src="./img/nmap.PNG"/>
             <p>This is a Linux machine and ports 22, 80 and 8089 are open, this is more than enough. I proceeded by visiting the webserver on port 80
                 and running gobuster looking for some useful directories.
             </p>
         
         <h2>Enumeration</h2>
             <p>There's nothing interesting enumerating the webserver's directories, I used a small wordlist, you can try something bigger but I didn't need this anyway.</p>    
-            <img src="./doctor/dirb.PNG"/>
+            <img src="./img/dirb.PNG"/>
 
         <h2>Webserver</h2>
             <p>This is the website homepage, there is nothing really interesting except for a domain named <b>doctors.htb</b></p>
-            <img src="./doctor/webserver.PNG" style="max-width: 55%;"/>
+            <img src="./img/webserver.PNG" style="max-width: 55%;"/>
 
         <h2>Virtual host</h2>
             <p>I added <i>doctors.htb</i> into my <b>/etc/hosts</b> file and visited the URL again, now there's <b>actually</b> some interesting: a login page!</p>
-            <img src="./doctor/login.PNG" style="max-width: 55%;"/>
+            <img src="./img/login.PNG" style="max-width: 55%;"/>
             <p>At this point I thought that I might have found something more useful enumerating the directories. So I ran gobuster once again.</p>
-            <img src="./doctor/dirb-vhost.PNG" style="max-width: 55%;"/>
+            <img src="./img/dirb-vhost.PNG" style="max-width: 55%;"/>
             <p>Nothing out of the ordinary, apparently. I noticed an <i>archive</i> folder and explored in the URL. Nothing happens but it's quite suspicious.</p>
 
         <h2>Messing up with login/register page</h2>
@@ -33,8 +33,8 @@
             <p>At this point you are redirected to the homepage, there is a section when you can submit a post with a title and a content. The post will be shown on
                 the homepage.
             </p>
-            <img src="./doctor/board.PNG" style="max-width: 55%;"/>
-            <img src="./doctor/homepage.PNG" style="max-width: 55%;"/>
+            <img src="./img/board.PNG" style="max-width: 55%;"/>
+            <img src="./img/homepage.PNG" style="max-width: 55%;"/>
             <p>I think there might be a vulnerability here somewhere, so I documented myself about how exploiting form submissions and I found an interesting document
                 about <b>Server-side Template Injection</b> (SSTI). You can find a nicely documented methodology on <a href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection">this repo</a>.
             </p>
@@ -47,9 +47,9 @@
             <p>The real question now is: <b>where should the expressions be evaluated?</b> Looking around I remembered the <b>archive</b> directory I found while
                 enumerating. So I wrote a very simple payload based on the flowchart and checked out the archive directory. Bingo!
             </p>
-            <img src="./doctor/example-payload.PNG" style="max-width: 55%;"/><br>
+            <img src="./img/example-payload.PNG" style="max-width: 55%;"/><br>
             <p>This was the result of the expression:</p>
-            <img src="./doctor/example-payload2.PNG" style="max-width: 55%;"/>
+            <img src="./img/example-payload2.PNG" style="max-width: 55%;"/>
             <p>After a couple of attempts following the flowchart I found that the framework under the hood is Jinja2, which is written in Python. This is a very useful information as 
                 I'm now aware of the language I have to use if I want to write and run payloads.
             </p>
@@ -60,7 +60,7 @@
                 to run simple commands, so I tried things like {{import os; os.system("whoami");}} but nothing worked. Since I was stuck on this part I asked help to users 
                 on HTB chats and forums for a nudge. I found this piece of conversation to be somehow helpful.
             </p>
-            <img src="./doctor/chat.PNG" style="max-width: 55%;">
+            <img src="./img/chat.PNG" style="max-width: 55%;">
             <p>I was actually missing that the script were ran under a backend engine, so I needed to "crawl" into the engine context in order to require the objects and the methods 
                 that I needed to run my payload. 
             </p>
@@ -95,17 +95,17 @@
             <p>Obviously no shell will spawn unless you put your machine on listening on an external port, so I ran netcat in listening mode on port 4444.
                 Ran the URL on the /archive endpoint, a shell will spawn on your terminal!
             </p>
-            <img src="./doctor/shell.PNG">
+            <img src="./img/shell.PNG">
             <p>By enumerating on the machine we can find some useful information. There are 2 users, <i>web</i> and <i>shaun</i>, and we are logged as the first one.
                 As web, we can't do anything except looking for interesting files. I followed <a href="https://blog.g0tmi1k.com/2011/08/basic-linux-privilege-escalation/">this guide</a> for basic privesc commands and
                 in the /var/log/apache2/ directory I found a file named "backup". By displaying its content on screen I finally found a password!
             </p>
-            <img src="./doctor/user_password.PNG">
+            <img src="./img/user_password.PNG">
             <p>...Or at least it looks like one.
                 The first thing I tried is to switch from web to shaun. So I used the <i>su</i> command using the password I found, aaaaand we are in!
                 Right now we can search for the user.txt flag, it's located in the /home/shaun directory, so we cat the content and we finally have user.
             </p>
-            <img src="./doctor/user-txt.PNG">
+            <img src="./img/user-txt.PNG">
 
         <h1>From user to root</h1>
             <p>I found this part easier than user, I didn't had much informations, but there was one service that I didn't even checked: <b>the splunk service on port 8089</b>.
@@ -116,8 +116,8 @@
             <p>By the way, in order to use this tool, I cloned the repository, opened another terminal window and ran nc on port 9999 and used the PySplunkWhisperer_remote script following
                 the usage instructions. The script did everything for me, and on the netcat window I had a shell as root! 
             </p>
-            <img src="./doctor/root_shell.PNG"><br><br>
-            <img src="./doctor/root_shell2.PNG">
+            <img src="./img/root_shell.PNG"><br><br>
+            <img src="./img/root_shell2.PNG">
 
     </body>
 </html>
